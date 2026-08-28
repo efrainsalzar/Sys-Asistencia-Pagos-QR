@@ -1,0 +1,24 @@
+# Dependencias
+node_modules/
+
+# Builds y cobertura
+dist/
+build/
+.next/
+coverage/
+
+# Variables de entorno y secretos
+.env
+.env.*
+!.env.example
+
+# Logs y archivos temporales
+*.log
+*.tmp
+.cache/
+
+# Sistema operativo y editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
