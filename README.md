@@ -14,6 +14,7 @@ Sistema para registrar asistencia y gestionar pagos por QR o en efectivo durante
 
 - [Índice de documentación](docs/README.md)
 - [Estructura del proyecto](docs/estructura-del-proyecto.md)
+- [Instalación y comandos](docs/instalacion.md)
 - [Visión general](docs/vision-general.md)
 - [Flujo del sistema](docs/flujo-del-sistema.md)
 - [Reglas de negocio](docs/reglas-negocio.md)
