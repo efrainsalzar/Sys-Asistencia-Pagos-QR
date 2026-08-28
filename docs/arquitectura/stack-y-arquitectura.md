@@ -30,6 +30,20 @@ Docker        -> ejecución de servicios
 
 El frontend no decide estados críticos como si una persona puede pagar o si un pago está confirmado. Esas decisiones pertenecen al backend y deben quedar respaldadas por la base de datos.
 
+## Exposición Por Autorización Explícita
+
+La exposición de datos sigue el principio de mínimo privilegio:
+
+```text
+app -> tablas internas del sistema
+api -> vistas y funciones autorizadas
+anon -> sin acceso por defecto
+```
+
+PostgREST utilizará el esquema `api`. Ninguna tabla o función se considera pública por estar creada; cada objeto que deba exponerse tendrá que recibir un permiso explícito mediante una migración. Las tablas sensibles, como usuarios, pagos y auditoría, no se expondrán directamente.
+
+El esquema `public` no será la frontera de la API. Se reserva para objetos internos o compatibilidad de PostgreSQL.
+
 ## Flujo De Comunicación
 
 - Las consultas simples pueden usar PostgREST.

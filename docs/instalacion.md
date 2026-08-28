@@ -40,6 +40,39 @@ pnpm install
 pnpm -r list --depth -1
 ```
 
+## Infraestructura Local
+
+La infraestructura local se ejecuta con Docker Compose desde la raíz:
+
+```powershell
+docker compose up -d
+docker compose ps
+```
+
+Los servicios actuales son:
+
+```text
+PostgreSQL 17 -> localhost:5432
+PostgREST     -> localhost:3002
+Redis 7       -> localhost:6379
+```
+
+Para detenerlos sin eliminar los datos:
+
+```powershell
+docker compose down
+```
+
+Los datos se conservan en volúmenes Docker. Para revisar los registros:
+
+```powershell
+docker compose logs -f postgres
+docker compose logs -f postgrest
+docker compose logs -f redis
+```
+
+La configuración principal está en `infra/compose/docker-compose.yml`. El archivo `docker-compose.yml` de la raíz permite conservar el comando corto `docker compose up -d`.
+
 ## Ejecutar Aplicaciones
 
 Backend:
@@ -92,14 +125,20 @@ Los README que generaban conflicto durante los comandos de scaffolding fueron re
 
 Durante la instalación de Next.js hubo reintentos de descarga desde el registro de npm y avisos de dependencias obsoletas. La instalación finalizó correctamente; estas advertencias deben revisarse cuando se actualicen dependencias, pero no requieren cambios manuales ahora.
 
+## Estado De La Infraestructura
+
+La infraestructura base ya está definida y validada con `docker compose config`. El primer arranque depende de que Docker Desktop termine de descargar las imágenes fijadas.
+
+La inicialización de PostgreSQL crea los esquemas `app` y `api`, además del rol `anon`. PostgREST queda apuntando a `api` y no recibe permisos sobre tablas o funciones por defecto.
+
 ## Alcance Pendiente
 
-La instalación de aplicaciones está lista. Aún falta incorporar la infraestructura definida en la arquitectura:
+La instalación de aplicaciones e infraestructura base está preparada. Aún falta:
 
-- PostgreSQL y sus migraciones.
-- PostgREST.
-- Redis para caché y trabajos asíncronos.
-- Docker Compose.
+- Ejecutar y verificar el primer arranque de los contenedores.
+- Crear migraciones de estructura para `app` y `api`.
+- Otorgar permisos de forma explícita para cada vista o función pública.
+- Conectar NestJS con PostgreSQL y Redis.
 - Configuración de Fastify si se mantiene como servidor HTTP objetivo.
 
 Este documento registra cómo levantar la base actual; la arquitectura objetivo está en [Stack y arquitectura base](arquitectura/stack-y-arquitectura.md).
