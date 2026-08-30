@@ -44,3 +44,44 @@ Los módulos del backend deben organizarse por capacidad de negocio, por ejemplo
 ## Estado De La Estructura
 
 Esta es la estructura inicial. Los directorios de implementación se irán completando al definir el modelo de datos y el primer alcance funcional.
+
+
+---
+apps/
+└── api/
+    ├── src/
+    │   ├── main.ts
+    │   ├── app.module.ts
+    │   ├── app.controller.ts
+    │   ├── app.service.ts
+    │   │
+    │   ├── config/
+    │   │   ├── configuration.ts
+    │   │   └── env.validation.ts
+    │   │
+    │   ├── database/
+    │   │   ├── database.module.ts
+    │   │   └── database.service.ts
+    │   │
+    │   ├── health/
+    │   │   ├── health.module.ts
+    │   │   └── health.controller.ts
+    │   │
+    │   ├── common/
+    │   │   ├── decorators/
+    │   │   ├── filters/
+    │   │   ├── guards/
+    │   │   ├── interceptors/
+    │   │   ├── pipes/
+    │   │   └── types/
+    │   │
+    │   └── modules/
+    │       ├── organizacion/
+    │       ├── persona/
+    │       ├── usuario/
+    │       ├── rol/
+    │       ├── reunion/
+    │       └── asistencia/
+    │
+    ├── test/
+    └── package.json
