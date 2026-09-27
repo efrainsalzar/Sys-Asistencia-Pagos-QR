@@ -6,7 +6,7 @@ Registro resumido del entorno inicial y de los comandos operativos del monorepo.
 
 La instalación base está completada y el workspace reconoce:
 
-- `apps/api`: NestJS con TypeScript, ESM y Vitest.
+- `apps/api`: NestJS con TypeScript, CommonJS sobre NodeNext y Vitest.
 - `apps/web`: Next.js con React, TypeScript, Tailwind CSS y ESLint.
 - `packages/*`: espacio reservado para paquetes compartidos.
 
@@ -87,7 +87,16 @@ Frontend:
 pnpm --filter web dev
 ```
 
-También están disponibles para el backend `start`, `build`, `lint`, `test` y `test:e2e`; para el frontend, `build`, `start` y `lint`.
+También están disponibles para el backend `start`, `build`, `typecheck`, `lint`, `test` y `test:e2e`; para el frontend, `build`, `start` y `lint`.
+
+Chequeo recomendado del API:
+
+```powershell
+pnpm --dir apps/api typecheck
+pnpm --dir apps/api build
+pnpm --dir apps/api test
+pnpm --dir apps/api test:e2e
+```
 
 ## Comandos De Generación
 
@@ -138,7 +147,9 @@ La instalación de aplicaciones e infraestructura base está preparada. Aún fal
 - Ejecutar y verificar el primer arranque de los contenedores.
 - Crear migraciones de estructura para `app` y `api`.
 - Otorgar permisos de forma explícita para cada vista o función pública.
-- Conectar NestJS con PostgreSQL y Redis.
-- Configuración de Fastify si se mantiene como servidor HTTP objetivo.
+- Completar los módulos de dominio y sus migraciones.
+- Definir autenticación, RLS y permisos antes de exponer lecturas mediante PostgREST.
+- Incorporar Redis únicamente cuando exista un caso de uso para colas, caché o trabajos asíncronos.
+- Evaluar WebSockets y un adaptador HTTP alternativo solo cuando exista una necesidad concreta.
 
 Este documento registra cómo levantar la base actual; la arquitectura objetivo está en [Stack y arquitectura base](arquitectura/stack-y-arquitectura.md).

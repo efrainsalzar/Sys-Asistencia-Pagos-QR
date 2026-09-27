@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 
-import { AppModule, /*ObserveInstrument*/ } from './app.module.js';
+import { AppModule, /*ObserveInstrument*/ } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -11,5 +11,7 @@ async function bootstrap() {
   const port = configService.get('app.port');
   await app.listen(port);
 }
-await bootstrap();
-  
+bootstrap().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

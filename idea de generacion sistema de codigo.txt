@@ -1,0 +1,103 @@
+================================================================================
+ESPECIFICACIÓN TÉCNICA Y DE NEGOCIO: SISTEMA DE PAGOS DIGITALES DE ASISTENCIA
+================================================================================
+
+1. DESCRIPCIÓN GENERAL DEL SISTEMA
+--------------------------------------------------------------------------------
+El sistema rediseña el proceso de asistencia y recaudación en eventos o reuniones periódicas. La asistencia funciona como el evento disparador (trigger) que inicia la generación de la orden de pago, gestiona deudas pendientes, asigna códigos QR de cobro diferido y organiza el flujo final de cobro en efectivo.
+
+El sistema está diseñado para operar de forma "On-Demand" en una PC/Laptop local (a costo de infraestructura $0/mes) conectada a una red Wi-Fi local para los operadores y a internet para el envío de mensajes y respaldos en la nube.
+
+
+2. FLUJO GENERAL DEL SISTEMA
+--------------------------------------------------------------------------------
+1. El administrador enciende la aplicación en la PC local y crea la reunión.
+2. Se habilita el registro de asistencia en la red local.
+3. El asistente llega a la entrada y presenta su credencial.
+4. El operador escanea o ingresa el ID del asistente desde su dispositivo.
+5. El sistema ejecuta en milisegundos (< 1 segundo):
+   - Registra la asistencia.
+   - Detecta deudas/cuotas acumuladas de reuniones anteriores.
+   - Genera una orden de pago única con el monto total (cuota actual + deudas).
+   - Genera un código QR único para esa orden de pago.
+   - Encola en segundo plano el envío de la imagen del QR al WhatsApp del asistente.
+6. El asistente ingresa, toma asiento y recibe la imagen del QR en su celular.
+7. Durante la reunión el asistente decide:
+   - Opción A: Pagar por QR desde la aplicación de su banco (usando sus datos móviles).
+   - Opción B: Esperar al final para pagar en efectivo.
+8. Si paga por QR:
+   - El sistema confirma el pago y actualiza la orden a "Pagado por QR".
+   - Se envía un comprobante de confirmación al WhatsApp del asistente.
+9. Finaliza la reunión:
+   - Asistentes que ya pagaron por QR: Salen directamente.
+   - Asistentes que no pagaron: El sistema genera una lista ordenada cronológicamente por hora de llegada para realizar el cobro en efectivo en el mismo orden de ingreso. Al cobrar, se marca la orden como "Pagado en efectivo".
+10. El administrador cierra la reunión: El sistema exporta reportes en Excel, realiza una copia de seguridad en disco externo/USB y sincroniza el backup en Google Drive/OneDrive.
+
+
+3. ESTRUCTURA Y MENTENIMIENTO DE LA REUNIÓN
+--------------------------------------------------------------------------------
+Cada reunión es una entidad independiente con su propio historial:
+
+Reunión
+  │
+  ├── Lista de asistentes
+  ├── Órdenes de pago acumuladas
+  ├── Pagos confirmados por QR
+  ├── Pagos realizados en efectivo
+  └── Reporte final de recaudación y auditoría
+
+
+4. REGLAS DE NEGOCIO Y CONDICIONES DEL QR
+--------------------------------------------------------------------------------
+- El QR se genera únicamente después de registrar la asistencia.
+- Cada QR está asociado de forma unívoca a: una persona, una reunión y una orden de pago.
+- El QR es desechable y solo puede utilizarse para una única transacción exitosa.
+- Tiene una fecha y hora de expiración automática (23:59 hrs del día de la reunión).
+- Una vez confirmado el pago, el QR queda invalidado para evitar reutilización.
+
+
+5. MANEJO AUTOMÁTICO DE CUOTAS PENDIENTES
+--------------------------------------------------------------------------------
+El sistema calcula el monto del QR según el historial del asistente:
+
+- Primera reunión:
+  Asiste ──> QR generado ──> No paga ──> Deuda = 1 cuota pendiente.
+
+- Segunda reunión:
+  Asiste ──> El sistema detecta deuda ──> Genera 1 único QR por (Cuota Anterior + Cuota Actual).
+
+- Tercera reunión:
+  Asiste ──> El sistema detecta 2 cuotas pendientes ──> Se activa la Regla de Pago Obligatorio. La pantalla del operador muestra una alerta de detención y el usuario no puede cerrar su participación sin regularizar las cuotas.
+
+* Nota: El límite de cuotas para bloqueo es configurable por la administración.
+
+
+6. ESTADOS Y SEGUIMIENTO DEL SISTEMA
+--------------------------------------------------------------------------------
+Estados de una Orden de Pago:
+- Pendiente
+- Pagado por QR
+- Pagado en efectivo
+- Vencido
+- Anulado
+
+Estados del Asistente en el Tablero de Monitoreo:
+- ❌  No asistió
+- ✅ 🟡 Asistió - Pendiente de pago
+- ✅ 🟢 Asistió - Pagó por QR
+- ✅ 💵 Asistió - Pagó en efectivo
+
+
+7. ARQUITECTURA TÉCNICA Y REQUISITOS DE RENDIMIENTO
+--------------------------------------------------------------------------------
+- Tiempo de respuesta en puerta: El registro de asistencia debe procesarse en menos de 1 segundo (requisito máximo: < 5 segundos por persona).
+- Procesamiento en segundo plano: La generación del QR y la llamada a la API de WhatsApp se ejecutan mediante colas de trabajo (Redis/BullMQ) sin bloquear la interfaz del operador.
+- Tolerancia a latencia: Si falla el internet o WhatsApp tarda en responder, el sistema local sigue registrando accesos normalmente y reintenta los envíos en segundo plano.
+- Monitoreo en tiempo real: Pantalla conectada vía WebSockets/SSE para actualizar la lista de ingresos y pagos sin refrescar la página.
+- Auditoría total: Registro completo de logs (fecha, hora, método de pago, usuario operador que registró la acción).
+- Despliegue Local (On-Demand / $0 Costo):
+  • Base de datos: PostgreSQL (Local).
+  • Backend API: Node.js / Go (Local).
+  • Cola de tareas: Redis (Local).
+  • Bot de WhatsApp: Baileys / whatsapp-web.js (Local, vinculando número propio).
+  • Frontend: PWA en React / Vue (Alojado localmente y servido a los celulares de los operadores por la Wi-Fi local).

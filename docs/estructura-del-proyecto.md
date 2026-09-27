@@ -5,7 +5,7 @@ El proyecto utiliza una organización tipo monorepo. La regla principal es separ
 ```text
 Sys-Asistencia-Pagos-QR/
 ├── apps/
-│   ├── api/                 # Backend NestJS + Fastify
+│   ├── api/                 # Backend NestJS + Express + CommonJS
 │   └── web/                 # Frontend Next.js
 ├── packages/
 │   ├── config/              # Configuración compartida
@@ -39,11 +39,11 @@ Sys-Asistencia-Pagos-QR/
 
 ## Convención De Módulos
 
-Los módulos del backend deben organizarse por capacidad de negocio, por ejemplo `asistencia`, `pagos`, `reuniones`, `personas` y `notificaciones`. Dentro de cada módulo se recomienda separar `domain`, `application`, `infrastructure` y `presentation` cuando la complejidad lo justifique.
+Los módulos del backend deben organizarse por capacidad de negocio, por ejemplo `asistencia`, `pagos`, `reuniones`, `personas` y `notificaciones`. Al inicio, un módulo puede mantener una estructura simple con DTOs, controlador, servicio y módulo. Se separará en `domain`, `application`, `infrastructure` y `presentation` cuando la complejidad lo justifique.
 
 ## Estado De La Estructura
 
-Esta es la estructura inicial. Los directorios de implementación se irán completando al definir el modelo de datos y el primer alcance funcional.
+El API ya contiene las fundaciones de configuración, conexión a PostgreSQL, health check y el módulo inicial `organizacion`. Los demás dominios se irán completando después de estabilizar sus migraciones y contratos.
 
 
 ---
